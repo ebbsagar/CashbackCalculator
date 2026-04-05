@@ -1,0 +1,1669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cashback Analyzer</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0b;
+            color: #e4e4e7;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px 32px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            margin-bottom: 32px;
+            border-bottom: 1px solid #27272a;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #d4af37 0%, #b8962e 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .logo h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 4px;
+            background: #18181b;
+            border-radius: 10px;
+            padding: 4px;
+        }
+
+        .nav-tab {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            color: #71717a;
+            font-family: inherit;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-tab:hover {
+            color: #fff;
+        }
+
+        .nav-tab.active {
+            background: #27272a;
+            color: #fff;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #d4af37 0%, #b8962e 100%);
+            color: #000;
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: #a1a1aa;
+            border: 1px solid #27272a;
+        }
+
+        .btn-ghost:hover {
+            background: #18181b;
+            border-color: #3f3f46;
+            color: #fff;
+        }
+
+        .upload-zone {
+            background: #18181b;
+            border: 1px dashed #3f3f46;
+            border-radius: 10px;
+            padding: 12px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .upload-zone:hover {
+            border-color: #d4af37;
+            background: rgba(212, 175, 55, 0.02);
+        }
+
+        .upload-zone input {
+            display: none;
+        }
+
+        .upload-zone span {
+            font-size: 0.875rem;
+            color: #71717a;
+        }
+
+        .upload-zone span strong {
+            color: #d4af37;
+        }
+
+        .controls-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .period-filter {
+            display: flex;
+            gap: 4px;
+            background: #18181b;
+            border-radius: 10px;
+            padding: 4px;
+        }
+
+        .period-btn {
+            padding: 8px 16px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            color: #71717a;
+            font-family: inherit;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .period-btn:hover {
+            color: #fff;
+        }
+
+        .period-btn.active {
+            background: linear-gradient(135deg, #d4af37 0%, #b8962e 100%);
+            color: #000;
+        }
+
+        .card {
+            background: #18181b;
+            border: 1px solid #27272a;
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: #18181b;
+            border: 1px solid #27272a;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .stat-card:hover {
+            border-color: #3f3f46;
+            transform: translateY(-2px);
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #71717a;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .stat-value.gold {
+            color: #d4af37;
+        }
+
+        .stat-value.green {
+            color: #22c55e;
+        }
+
+        .stat-value.red {
+            color: #ef4444;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 16px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .issuer-group {
+            margin-bottom: 24px;
+        }
+
+        .issuer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #18181b;
+            border: 1px solid #27272a;
+            border-radius: 12px;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 12px;
+        }
+
+        .issuer-header:hover {
+            border-color: #3f3f46;
+        }
+
+        .issuer-info h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .issuer-meta {
+            font-size: 0.75rem;
+            color: #71717a;
+        }
+
+        .issuer-stats {
+            display: flex;
+            gap: 24px;
+        }
+
+        .issuer-stat {
+            text-align: right;
+        }
+
+        .issuer-stat .label {
+            font-size: 0.7rem;
+            color: #52525b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .issuer-stat .value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #fff;
+        }
+
+        .transactions-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+
+        .transactions-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #52525b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid #27272a;
+        }
+
+        .transactions-table td {
+            padding: 14px 16px;
+            font-size: 0.875rem;
+            color: #a1a1aa;
+            border-bottom: 1px solid #1f1f23;
+        }
+
+        .transactions-table tr:hover td {
+            background: #1f1f23;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .badge-dr {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+        }
+
+        .badge-cr {
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+        }
+
+        .badge-category {
+            background: rgba(212, 175, 55, 0.15);
+            color: #d4af37;
+        }
+
+        .cashback {
+            font-family: 'JetBrains Mono', monospace;
+            color: #22c55e;
+            font-weight: 500;
+        }
+
+        .amount {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 80px;
+            color: #52525b;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 80px;
+            color: #52525b;
+        }
+
+        .comparison-card {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(184, 150, 46, 0.05) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 24px;
+        }
+
+        .comparison-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #d4af37;
+            margin-bottom: 16px;
+        }
+
+        .comparison-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+        }
+
+        .comparison-row:last-child {
+            border-bottom: none;
+        }
+
+        .comparison-row .label {
+            color: #71717a;
+        }
+
+        .comparison-row .value {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500;
+        }
+
+        .comparison-row .value.match {
+            color: #22c55e;
+        }
+
+        .comparison-row .value.mismatch {
+            color: #ef4444;
+        }
+
+        .chart-placeholder {
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #52525b;
+            background: #1f1f23;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .header-actions {
+                display: none;
+            }
+
+            .nav-tabs {
+                gap: 2px;
+                padding: 3px;
+            }
+
+            .nav-tab {
+                padding: 8px 14px;
+                font-size: 0.8rem;
+            }
+
+            #dashboard-tab > div {
+                grid-template-columns: 1fr !important;
+            }
+
+            #dashboard-tab .card[style*="grid-column"] {
+                grid-column: span 1 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">💰</div>
+                <h1>Cashback Analyzer</h1>
+            </div>
+            <div class="nav-tabs">
+                <button class="nav-tab active" data-tab="overview">Overview</button>
+                <button class="nav-tab" data-tab="dashboard">Dashboard</button>
+                <button class="nav-tab" data-tab="cards">Cards</button>
+                <button class="nav-tab" data-tab="transactions">Transactions</button>
+            </div>
+            <div class="header-actions">
+                <div class="upload-zone" id="pdfUpload" style="margin-bottom: 0; padding: 8px 16px;">
+                    <input type="file" id="pdfFile" accept=".pdf">
+                    <span>📄 <strong>Upload PDF</strong></span>
+                </div>
+                <button class="btn btn-ghost" onclick="clearAllData()">Clear All</button>
+                <button class="btn btn-gold" onclick="loadAndDisplayData(true)">↻ Reload</button>
+            </div>
+        </header>
+
+        <div class="controls-row" id="controlsRow" style="display: none;">
+            <div class="period-filter" style="display: flex; align-items: center; gap: 8px;">
+                <span style="color: #a1a1aa; font-size: 0.85rem;">From:</span>
+                <select id="fromMonth" class="period-btn" style="background: #3f3f46; border: 1px solid #52525b; color: #fff; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
+                </select>
+                <span style="color: #a1a1aa; font-size: 0.85rem;">To:</span>
+                <select id="toMonth" class="period-btn" style="background: #3f3f46; border: 1px solid #52525b; color: #fff; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
+                </select>
+                <button class="period-btn" id="allPeriodBtn">All</button>
+            </div>
+            <div id="debug-info" style="color: #71717a; font-size: 0.7rem; margin-left: auto;"></div>
+        </div>
+
+        <div id="overview-tab" class="tab-content active">
+            <div class="stats-grid" id="overviewStatsGrid" style="display: none;">
+                <div class="stat-card">
+                    <div class="stat-label">Transactions</div>
+                    <div class="stat-value" id="overviewTotal">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">DR (Purchases)</div>
+                    <div class="stat-value" id="overviewDR">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">CR (Credits)</div>
+                    <div class="stat-value" id="overviewCR">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Spend</div>
+                    <div class="stat-value" id="overviewSpend">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Cashback</div>
+                    <div class="stat-value gold" id="overviewCashback">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Statements</div>
+                    <div class="stat-value" id="overviewStatements">0</div>
+                </div>
+            </div>
+            <div id="overviewContent"></div>
+        </div>
+
+        <div id="cards-tab" class="tab-content">
+            <div class="card">
+                <h3 class="section-title">Your Cards</h3>
+                <div id="cardsContent">
+                    <div class="no-data">No cards data available</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="transactions-tab" class="tab-content">
+            <div class="card">
+                <h3 class="section-title">All Transactions</h3>
+                <div id="transactionsContent">
+                    <div class="no-data">No transactions found</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="dashboard-tab" class="tab-content">
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+                <div class="card">
+                    <h3 class="section-title">Spending by Category</h3>
+                    <div style="height: 280px;">
+                        <canvas id="categoryPieChart"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="section-title">Monthly Cashback Trend</h3>
+                    <div style="height: 280px;">
+                        <canvas id="cashbackLineChart"></canvas>
+                    </div>
+                </div>
+                <div class="card" style="grid-column: span 2;">
+                    <h3 class="section-title">Top Spending Categories</h3>
+                    <div style="height: 280px;">
+                        <canvas id="topCategoriesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="card" style="margin-top: 24px;">
+                <h3 class="section-title">Category Details</h3>
+                <div id="dashboardContent"></div>
+            </div>
+        </div>
+
+        <div id="loader" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999; justify-content: center; align-items: center; flex-direction: column;">
+            <div style="width: 48px; height: 48px; border: 4px solid #27272a; border-top: 4px solid #d4af37; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+            <div style="color: #a1a1aa; margin-top: 16px; font-size: 0.875rem;">Processing PDF...</div>
+        </div>
+
+        <div id="confirmModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999; justify-content: center; align-items: center;">
+            <div style="background: #18181b; border: 1px solid #27272a; border-radius: 16px; padding: 24px; max-width: 400px; width: 90%;">
+                <h3 style="color: #fff; margin-bottom: 12px;">Clear All Data?</h3>
+                <p style="color: #71717a; margin-bottom: 24px; font-size: 0.875rem;">This will delete all uploaded PDFs and transactions. This action cannot be undone.</p>
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button id="confirmNo" style="padding: 10px 20px; background: transparent; border: 1px solid #27272a; border-radius: 8px; color: #a1a1aa; cursor: pointer; font-size: 0.875rem;">No</button>
+                    <button id="confirmYes" style="padding: 10px 20px; background: #ef4444; border: none; border-radius: 8px; color: #fff; cursor: pointer; font-size: 0.875rem; font-weight: 500;">Yes, Clear</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #confirmYes:hover {
+            background: #dc2626;
+        }
+        #confirmNo:hover {
+            background: #27272a;
+            color: #fff;
+        }
+    </style>
+
+    <script>
+        let allData = null;
+        let fromMonth = null;
+        let toMonth = null;
+        let currentTab = 'dashboard';
+        let cachedTransHtml = null;
+        let cachedRangeKey = null;
+
+        document.getElementById('pdfUpload').addEventListener('click', () => {
+            document.getElementById('pdfFile').click();
+        });
+
+        document.getElementById('pdfFile').addEventListener('change', handlePdfUpload);
+
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                e.target.classList.add('active');
+                currentTab = e.target.dataset.tab;
+                showTab(currentTab);
+            });
+        });
+
+        function populateMonthDropdowns() {
+            if (!allData || !allData.by_issuer) return;
+            
+            let allTrans = [];
+            Object.values(allData.by_issuer).forEach(issuerData => {
+                allTrans = allTrans.concat(issuerData.transactions || []);
+            });
+            
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            
+            const monthMap = {};
+            allTrans
+                .filter(t => t.date)
+                .forEach(t => {
+                    const parts = t.date.split('/');
+                    const key = `${parts[2]}-${parts[1].padStart(2, '0')}`;
+                    const label = `${monthNames[parseInt(parts[1]) - 1]} ${parts[2]}`;
+                    monthMap[key] = { key, label };
+                });
+            
+            const uniqueMonths = Object.values(monthMap).sort((a, b) => b.key.localeCompare(a.key));
+            
+            const fromSelect = document.getElementById('fromMonth');
+            const toSelect = document.getElementById('toMonth');
+            
+            fromSelect.innerHTML = '';
+            toSelect.innerHTML = '';
+            
+            uniqueMonths.forEach(m => {
+                fromSelect.innerHTML += `<option value="${m.key}">${m.label}</option>`;
+                toSelect.innerHTML += `<option value="${m.key}">${m.label}</option>`;
+            });
+            
+            if (uniqueMonths.length > 0) {
+                fromMonth = uniqueMonths[uniqueMonths.length - 1].key;
+                toMonth = uniqueMonths[0].key;
+                fromSelect.value = fromMonth;
+                toSelect.value = toMonth;
+            }
+        }
+
+        document.getElementById('fromMonth').addEventListener('change', (e) => {
+            fromMonth = e.target.value;
+            if (fromMonth > toMonth) {
+                toMonth = fromMonth;
+                document.getElementById('toMonth').value = toMonth;
+            }
+            document.getElementById('allPeriodBtn').classList.remove('active');
+            refreshAllViews();
+        });
+
+        document.getElementById('toMonth').addEventListener('change', (e) => {
+            toMonth = e.target.value;
+            if (toMonth < fromMonth) {
+                fromMonth = toMonth;
+                document.getElementById('fromMonth').value = fromMonth;
+            }
+            document.getElementById('allPeriodBtn').classList.remove('active');
+            refreshAllViews();
+        });
+
+        document.getElementById('allPeriodBtn').addEventListener('click', (e) => {
+            document.getElementById('allPeriodBtn').classList.add('active');
+            populateMonthDropdowns();
+            refreshAllViews();
+        });
+
+        function refreshAllViews() {
+            cachedRangeKey = null;
+            cachedTransHtml = null;
+            updateSummary();
+            updateOverviewSummary();
+            renderOverview();
+            renderDashboard();
+            renderTransactions();
+            renderDashboard();
+        }
+
+        document.getElementById('pdfFile').addEventListener('change', handlePdfUpload);
+
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                e.target.classList.add('active');
+                currentTab = e.target.dataset.tab;
+                showTab(currentTab);
+            });
+        });
+
+        document.querySelectorAll('.period-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+                const clickedBtn = e.currentTarget;
+                clickedBtn.classList.add('active');
+                const periodValue = clickedBtn.dataset.period;
+                currentPeriod = periodValue !== undefined ? parseInt(periodValue, 10) : 12;
+                console.log('DEBUG period button clicked:', { period: currentPeriod, cachedPeriod: cachedPeriod, datasetPeriod: periodValue });
+                cachedPeriod = null;
+                cachedTransHtml = null;
+                updateSummary();
+                updateOverviewSummary();
+                renderOverview();
+                renderDashboard();
+                renderTransactions();
+                renderDashboard();
+            });
+        });
+
+        function showTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(tab + '-tab').classList.add('active');
+            
+            if (tab === 'overview' && allData) {
+                updateOverviewSummary();
+                renderOverview();
+            } else if (tab === 'dashboard' && allData) {
+                renderDashboard();
+            } else if (tab === 'transactions' && allData) {
+                renderTransactions();
+            } else if (tab === 'cards' && allData) {
+                renderCards();
+            } else if (tab === 'dashboard' && allData) {
+                renderDashboard();
+            }
+        }
+
+        function showLoader(minDuration = 2000) {
+            document.getElementById('loader').style.display = 'flex';
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    document.getElementById('loader').style.display = 'none';
+                    resolve();
+                }, minDuration);
+            });
+        }
+
+        async function handlePdfUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const loaderPromise = showLoader(2000);
+
+            try {
+                const response = await fetch('/api/upload-pdf', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                await loaderPromise;
+                
+                if (result.success) {
+                    loadAndDisplayData();
+                } else {
+                    alert('Error: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                await loaderPromise;
+                alert('Error uploading PDF: ' + error.message);
+            }
+        }
+
+        async function loadAndDisplayData(showLoading = false) {
+            if (showLoading) {
+                document.getElementById('loader').style.display = 'flex';
+            }
+            try {
+                const response = await fetch('/api/reload-data', { method: 'POST' });
+                const result = await response.json();
+                
+                if (showLoading) {
+                    document.getElementById('loader').style.display = 'none';
+                }
+                
+                if (!result.success || !result.total_transactions) {
+                    document.getElementById('overviewContent').innerHTML = '<div class="no-data">No transactions found. Upload a PDF to get started.</div>';
+                    document.getElementById('overviewStatsGrid').style.display = 'none';
+                    document.getElementById('dashboardContent').innerHTML = '<div class="no-data">No charts data. Upload a PDF to get started.</div>';
+                    document.getElementById('controlsRow').style.display = 'none';
+                    return;
+                }
+                
+                const transResponse = await fetch('/api/transactions');
+                allData = await transResponse.json();
+                
+                console.log('DEBUG data loaded:', {
+                    hasAllData: !!allData,
+                    hasByIssuer: !!(allData && allData.by_issuer),
+                    byIssuerKeys: allData && Object.keys(allData.by_issuer || {}),
+                    totalTransInAllData: allData && allData.transactions ? allData.transactions.length : 0,
+                    totalTransInByIssuer: allData && allData.by_issuer ? 
+                        Object.values(allData.by_issuer).reduce((sum, i) => sum + (i.transactions?.length || 0), 0) : 0
+                });
+                
+                cachedTransHtml = null;
+                cachedRangeKey = null;
+                
+                populateMonthDropdowns();
+                
+                updateSummary();
+                updateOverviewSummary();
+                renderOverview();
+                renderDashboard();
+                renderTransactions();
+                renderCards();
+                renderDashboard();
+                
+                document.getElementById('statsGrid').style.display = 'grid';
+                document.getElementById('overviewStatsGrid').style.display = 'grid';
+                document.getElementById('controlsRow').style.display = 'flex';
+            } catch (error) {
+                if (showLoading) {
+                    document.getElementById('loader').style.display = 'none';
+                }
+                console.error('Error loading data:', error);
+            }
+        }
+
+        function getFilteredTransactions() {
+            if (!allData || !allData.by_issuer) {
+                return [];
+            }
+            
+            let allTrans = [];
+            Object.values(allData.by_issuer).forEach(issuerData => {
+                allTrans = allTrans.concat(issuerData.transactions || []);
+            });
+            
+            if (!fromMonth || !toMonth) {
+                return allTrans;
+            }
+            
+            const isAllSelected = document.getElementById('allPeriodBtn').classList.contains('active');
+            
+            return allTrans.filter(trans => {
+                if (!trans.date) return false;
+                const parts = trans.date.split('/');
+                if (parts.length !== 3) return false;
+                const monthKey = `${parts[2]}-${parts[1].padStart(2, '0')}`;
+                
+                if (isAllSelected) {
+                    return true;
+                }
+                
+                return monthKey >= fromMonth && monthKey <= toMonth;
+            });
+        }
+
+        function updateSummary() {
+            if (!allData) return;
+            
+            const filtered = getFilteredTransactions();
+            const summary = allData.summary || {};
+            
+            const totalTrans = filtered.length;
+            const drTrans = filtered.filter(t => t.transaction_type === 'DR').length;
+            const crTrans = filtered.filter(t => t.transaction_type === 'CR').length;
+            const totalSpend = filtered.filter(t => t.transaction_type === 'DR').reduce((sum, t) => sum + Math.abs(t.amount), 0);
+            const totalCashback = filtered.reduce((sum, t) => sum + (t.calculated_cashback || 0), 0);
+            
+            document.getElementById('statTotal').textContent = totalTrans;
+            document.getElementById('statDR').textContent = drTrans;
+            document.getElementById('statCR').textContent = crTrans;
+            document.getElementById('statSpend').textContent = totalSpend.toLocaleString();
+            document.getElementById('statCashback').textContent = totalCashback.toLocaleString();
+            
+            const statusEl = document.getElementById('statStatus');
+            if (summary.total_stated_cashback > 0) {
+                const isMatch = summary.overall_match;
+                statusEl.textContent = isMatch ? 'MATCH' : 'MISMATCH';
+                statusEl.className = 'stat-value ' + (isMatch ? 'green' : 'red');
+            } else {
+                statusEl.textContent = '-';
+                statusEl.className = 'stat-value';
+            }
+        }
+
+        function updateOverviewSummary() {
+            if (!allData) return;
+            
+            const filtered = getFilteredTransactions();
+            const totalTrans = filtered.length;
+            const drTrans = filtered.filter(t => t.transaction_type === 'DR').length;
+            const crTrans = filtered.filter(t => t.transaction_type === 'CR').length;
+            const totalSpend = filtered.filter(t => t.transaction_type === 'DR').reduce((sum, t) => sum + Math.abs(t.amount), 0);
+            const totalCashback = filtered.reduce((sum, t) => sum + (t.calculated_cashback || 0), 0);
+            
+            const uniqueMonths = [...new Set(filtered.map(t => t.date).filter(Boolean))].length;
+            
+            document.getElementById('overviewTotal').textContent = totalTrans;
+            document.getElementById('overviewDR').textContent = drTrans;
+            document.getElementById('overviewCR').textContent = crTrans;
+            document.getElementById('overviewSpend').textContent = totalSpend.toLocaleString();
+            document.getElementById('overviewCashback').textContent = totalCashback.toLocaleString();
+            document.getElementById('overviewStatements').textContent = uniqueMonths;
+        }
+
+        function renderOverview() {
+            const filtered = getFilteredTransactions();
+            const container = document.getElementById('overviewContent');
+            
+            if (filtered.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            const byIssuer = {};
+            filtered.forEach(trans => {
+                if (!trans.date) return;
+                const issuer = trans.card_issuer || 'Unknown';
+                if (!byIssuer[issuer]) byIssuer[issuer] = {};
+                const parts = trans.date.split('/');
+                const monthKey = `${parts[2]}-${parts[1].padStart(2, '0')}`;
+                if (!byIssuer[issuer][monthKey]) {
+                    byIssuer[issuer][monthKey] = [];
+                }
+                byIssuer[issuer][monthKey].push(trans);
+            });
+            
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            
+            let html = '';
+            
+            Object.keys(byIssuer).sort().forEach(issuer => {
+                const months = byIssuer[issuer];
+                const allTrans = Object.values(months).flat();
+                const totalSpend = allTrans.filter(t => t.transaction_type === 'DR').reduce((sum, t) => sum + Math.abs(t.amount), 0);
+                const totalCashback = allTrans.reduce((sum, t) => sum + (t.calculated_cashback || 0), 0);
+                const issuerId = issuer.replace(/\s+/g, '-');
+                
+                html += `
+                    <div class="issuer-group">
+                        <div class="issuer-header" onclick="toggleOverviewIssuer('${issuerId}')">
+                            <div class="issuer-info">
+                                <h3>${issuer}</h3>
+                                <div class="issuer-meta">${allTrans.length} transactions</div>
+                            </div>
+                            <div class="issuer-stats">
+                                <div class="issuer-stat">
+                                    <div class="label">Spend</div>
+                                    <div class="value">${totalSpend.toLocaleString()}</div>
+                                </div>
+                                <div class="issuer-stat">
+                                    <div class="label">Cashback</div>
+                                    <div class="value" style="color: #22c55e;">${totalCashback.toFixed(2)}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="overview-issuer-${issuerId}" class="issuer-months" style="display: block; padding-left: 20px;">
+                `;
+                
+                Object.keys(months).sort().reverse().forEach(monthKey => {
+                    const monthTrans = months[monthKey];
+                    const [year, month] = monthKey.split('-');
+                    const monthName = monthNames[parseInt(month) - 1];
+                    const monthSpend = monthTrans.filter(t => t.transaction_type === 'DR').reduce((sum, t) => sum + Math.abs(t.amount), 0);
+                    const monthCashback = monthTrans.reduce((sum, t) => sum + (t.calculated_cashback || 0), 0);
+                    
+                    html += `
+                        <div class="month-group" style="margin: 12px 0;">
+                            <div class="month-header" onclick="toggleOverviewMonth('${issuerId}', '${monthKey}')" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: #1f1f23; border-radius: 8px; cursor: pointer;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="color: #71717a;">▶</span>
+                                    <span style="color: #fff; font-weight: 500;">${monthName} ${year}</span>
+                                    <span style="color: #52525b; font-size: 0.75rem;">(${monthTrans.length} transactions)</span>
+                                </div>
+                                <div style="display: flex; gap: 24px;">
+                                    <span class="amount" style="color: #a1a1aa;">₹${monthSpend.toLocaleString()}</span>
+                                    <span style="color: #22c55e;">₹${monthCashback.toFixed(2)}</span>
+                                </div>
+                            </div>
+                            <div id="overview-month-${issuerId}-${monthKey}" class="month-transactions" style="display: none; margin-top: 8px;">
+                                <table class="transactions-table" style="font-size: 0.8rem;">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Description</th>
+                                            <th>Amount</th>
+                                            <th>Cashback</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${monthTrans.sort((a, b) => b.date.localeCompare(a.date)).map(trans => `
+                                            <tr>
+                                                <td>${trans.date}</td>
+                                                <td>${trans.description || '-'}</td>
+                                                <td class="amount">${Math.abs(trans.amount).toLocaleString()}</td>
+                                                <td class="cashback">${trans.transaction_type === 'CR' ? '-' : (trans.calculated_cashback || 0).toFixed(2)}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function toggleOverviewIssuer(issuerId) {
+            const el = document.getElementById('overview-issuer-' + issuerId);
+            if (el) {
+                el.style.display = el.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        function toggleOverviewMonth(issuerId, monthKey) {
+            const el = document.getElementById('overview-month-' + issuerId + '-' + monthKey);
+            if (el) {
+                el.style.display = el.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        function toggleIssuer(issuerId) {
+            const el = document.getElementById('issuer-' + issuerId);
+            if (el) {
+                el.style.display = el.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+        
+        function toggleMonth(issuerId, monthKey) {
+            const el = document.getElementById('month-' + issuerId + '-' + monthKey);
+            if (el) {
+                el.style.display = el.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        function parseCashbackCredit(description, amount) {
+            if (!description || !description.toUpperCase().includes('CASHBACK')) return null;
+            
+            const match = description.match(/CASHBACK CREDIT ([A-Z]{3})(\d{2})/i);
+            if (match) {
+                const monthStr = match[1];
+                const yearStr = match[2];
+                const monthMap = { 'JAN': 1, 'FEB': 2, 'MAR': 3, 'APR': 4, 'MAY': 5, 'JUN': 6, 
+                                   'JUL': 7, 'AUG': 8, 'SEP': 9, 'OCT': 10, 'NOV': 11, 'DEC': 12 };
+                const month = monthMap[monthStr.toUpperCase()];
+                const year = 2000 + parseInt(yearStr);
+                if (month) {
+                    return {
+                        billingMonth: `${year}-${String(month).padStart(2, '0')}`,
+                        amount: Math.abs(amount)
+                    };
+                }
+            }
+            return null;
+        }
+
+        function getActualCashbackCredits(allTransactions) {
+            const credits = {};
+            allTransactions.forEach(trans => {
+                if (trans.transaction_type === 'CR') {
+                    const parsed = parseCashbackCredit(trans.description, trans.amount);
+                    if (parsed) {
+                        if (!credits[parsed.billingMonth]) credits[parsed.billingMonth] = 0;
+                        credits[parsed.billingMonth] += parsed.amount;
+                    }
+                }
+            });
+            return credits;
+        }
+        
+        function getBillingMonthFromDate(dateStr) {
+            const parts = dateStr.split('/');
+            if (parts.length === 3) {
+                return `${parts[2]}-${parts[1].padStart(2, '0')}`;
+            }
+            return null;
+        }
+
+        function renderTransactions() {
+            const container = document.getElementById('transactionsContent');
+            
+            if (!allData) {
+                container.innerHTML = '<div class="no-data">No transactions found</div>';
+                return;
+            }
+            
+            const isAllSelected = document.getElementById('allPeriodBtn').classList.contains('active');
+            const rangeKey = isAllSelected ? 'all' : `${fromMonth}-${toMonth}`;
+            
+            if (rangeKey === cachedRangeKey && cachedTransHtml) {
+                container.innerHTML = cachedTransHtml;
+                return;
+            }
+            
+            const filtered = getFilteredTransactions();
+            
+            if (filtered.length === 0) {
+                cachedTransHtml = '<div class="no-data">No transactions in selected period</div>';
+                cachedRangeKey = rangeKey;
+                container.innerHTML = cachedTransHtml;
+                return;
+            }
+            
+            const allTransactions = allData ? allData.transactions || [] : [];
+            
+            const byIssuer = {};
+            filtered.forEach(trans => {
+                if (!trans.statement_date) return;
+                const issuer = trans.card_issuer || 'Unknown';
+                if (!byIssuer[issuer]) byIssuer[issuer] = {};
+                const parts = trans.statement_date.split('/');
+                const monthKey = `${parts[2]}-${parts[1].padStart(2, '0')}`;
+                if (!byIssuer[issuer][monthKey]) {
+                    byIssuer[issuer][monthKey] = [];
+                }
+                byIssuer[issuer][monthKey].push(trans);
+            });
+            
+            console.log('DEBUG byIssuer keys:', Object.keys(byIssuer));
+            console.log('DEBUG byIssuer months:', Object.keys(byIssuer['Axis'] || {}).sort().reverse());
+            
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            
+            let html = '';
+            
+            Object.keys(byIssuer).sort().forEach(issuer => {
+                const months = byIssuer[issuer];
+                const issuerId = issuer.replace(/\s+/g, '-');
+                const allTrans = Object.values(months).flat();
+                
+                const years = [...new Set(Object.keys(months).map(k => k.split('-')[0]))].sort().reverse();
+                
+                html += `<div class="issuer-group" style="margin-bottom: 16px;">
+                    <div class="issuer-header" onclick="toggleTransIssuer('${issuerId}')" style="background: #27272a; padding: 12px 16px; border-radius: 8px; cursor: pointer;">
+                        <div class="issuer-info"><h3 style="color: #d4af37;">${issuer}</h3><div class="issuer-meta">${allTrans.length} transactions</div></div>
+                    </div>
+                    <div id="trans-issuer-${issuerId}" style="padding-left: 20px;">
+                        <div style="display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap;">`;
+                
+                years.forEach(year => {
+                    html += `<button onclick="toggleYearFilter('${issuerId}', '${year}', event)" id="year-btn-${issuerId}-${year}" style="background: #3f3f46; border: 1px solid #52525b; color: #a1a1aa; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 0.75rem;">${year}</button>`;
+                });
+                
+                html += `</div>`;
+                
+                Object.keys(months).sort().reverse().forEach(monthKey => {
+                    const monthTrans = months[monthKey];
+                    const [year, month] = monthKey.split('-');
+                    const monthName = monthNames[parseInt(month) - 1];
+                    const monthId = `${issuerId}-${monthKey}`;
+                    
+                    const drTrans = monthTrans.filter(t => t.transaction_type === 'DR');
+                    const drCashback = drTrans.reduce((sum, t) => sum + (t.calculated_cashback || 0), 0);
+                    
+                    const additionalCashback = monthTrans
+                        .filter(t => t.transaction_type === 'CR' && t.description && t.description.toUpperCase().includes('ADDITIONAL CASH BACK'))
+                        .reduce((sum, t) => sum + Math.abs(t.amount || 0), 0);
+                    
+                    const monthCalculatedCashback = drCashback - additionalCashback;
+                    
+                    const sampleTrans = drTrans[0] || monthTrans.find(t => t.pdf_cashback_earned) || monthTrans[0] || {};
+                    const pdfCashbackEarned = sampleTrans.pdf_cashback_earned || 0;
+                    const pdfCashbackCredited = sampleTrans.pdf_cashback_credited || 0;
+                    
+                    let diffPercent = null;
+                    if (monthCalculatedCashback > 0 && pdfCashbackEarned > 0) {
+                        diffPercent = ((pdfCashbackEarned - monthCalculatedCashback) / monthCalculatedCashback * 100).toFixed(1);
+                    }
+                    
+                    const diffColor = diffPercent ? (parseFloat(diffPercent) >= 0 ? '#22c55e' : '#ef4444') : '#52525b';
+                    const diffText = diffPercent ? (parseFloat(diffPercent) >= 0 ? '+' : '') + diffPercent + '%' : '-';
+                    
+                    html += `<div style="margin: 12px 0;">
+                        <div onclick="toggleTransMonth('${monthId}')" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: #1f1f23; border-radius: 8px; cursor: pointer;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="color: #71717a;">▶</span>
+                                <span style="color: #fff; font-weight: 500;">${monthName} ${year}</span>
+                                <span style="color: #52525b; font-size: 0.75rem;">(${monthTrans.length})</span>
+                            </div>
+                            <div style="display: flex; gap: 12px; align-items: center;">
+                                <div style="text-align: right; min-width: 60px;"><div style="font-size: 0.65rem; color: #71717a;">CALC</div><div style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #f97316;">~₹${monthCalculatedCashback.toFixed(0)}</div></div>
+                                <div style="text-align: right; min-width: 60px;"><div style="font-size: 0.65rem; color: #71717a;">EARNED</div><div style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #3b82f6;">₹${pdfCashbackEarned > 0 ? pdfCashbackEarned.toFixed(0) : '-'}</div></div>
+                                <div style="text-align: right; min-width: 60px;"><div style="font-size: 0.65rem; color: #71717a;">CREDITED</div><div style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #22c55e;">₹${pdfCashbackCredited > 0 ? pdfCashbackCredited.toFixed(0) : '-'}</div></div>
+                                <div style="text-align: right; min-width: 50px;"><div style="font-size: 0.65rem; color: #71717a;">DIFF</div><div style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: ${diffColor};">${diffText}</div></div>
+                            </div>
+                        </div>
+                        <div id="trans-month-${monthId}" style="display: none; margin-top: 8px;">
+                            <table class="transactions-table">
+                                <thead><tr><th>Date</th><th>Type</th><th>Description</th><th>Amount</th><th>Category</th><th>CB Rate</th><th>Cashback</th></tr></thead>
+                                <tbody>`;
+                    
+                    monthTrans.sort((a, b) => b.date.localeCompare(a.date)).forEach(trans => {
+                        const transType = trans.transaction_type || 'DR';
+                        const isCredit = transType === 'CR';
+                        const isAdditionalCashback = trans.description && trans.description.toUpperCase().includes('ADDITIONAL CASH BACK');
+                        const bankCat = trans.bank_category || (isCredit ? 'Credit' : 'N/A');
+                        const cbRate = trans.cashback_rate || 0;
+                        const cbAmount = trans.calculated_cashback || 0;
+                        const displayCashback = isAdditionalCashback ? -Math.abs(trans.amount) : (isCredit ? 0 : cbAmount);
+                        const cashbackColor = isAdditionalCashback ? '#ef4444' : 'inherit';
+                        html += `<tr><td>${trans.date}</td><td><span class="badge ${transType === 'CR' ? 'badge-cr' : 'badge-dr'}">${transType}</span></td><td>${trans.description || '-'}</td><td class="amount">${Math.abs(trans.amount).toLocaleString()}</td><td><span class="badge badge-category">${bankCat}</span></td><td>${isCredit ? '-' : (cbRate * 100) + '%'}</td><td class="cashback" style="color: ${cashbackColor}">${isAdditionalCashback ? displayCashback.toFixed(2) : (isCredit ? '-' : cbAmount.toFixed(2))}</td></tr>`;
+                    });
+                    
+                    html += `</tbody></table></div></div>`;
+                });
+                
+                html += `</div></div>`;
+            });
+            
+            cachedTransHtml = html;
+            cachedRangeKey = rangeKey;
+            container.innerHTML = html;
+            
+            const uniqueMonths = [...new Set(filtered.map(t => {
+                const sd = t.statement_date;
+                if (!sd) return null;
+                const parts = sd.split('/');
+                return parts.length === 3 ? `${parts[2]}-${parts[1].padStart(2, '0')}` : null;
+            }).filter(Boolean))].sort().reverse();
+            const isAll = document.getElementById('allPeriodBtn').classList.contains('active');
+            document.getElementById('debug-info').textContent = `${isAll ? 'All' : fromMonth + ' to ' + toMonth} | Months: ${uniqueMonths.length} | Transactions: ${filtered.length}`;
+        }
+
+        function toggleTransIssuer(issuerId) {
+            const el = document.getElementById('trans-issuer-' + issuerId);
+            if (el) {
+                el.style.display = el.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        function toggleTransMonth(monthId) {
+            const el = document.getElementById('trans-month-' + monthId);
+            if (el) {
+                el.style.display = el.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        let yearFilters = {};
+
+        function toggleYearFilter(issuerId, year, event) {
+            event.stopPropagation();
+            
+            if (!yearFilters[issuerId]) {
+                yearFilters[issuerId] = new Set();
+            }
+            
+            const btn = document.getElementById('year-btn-' + issuerId + '-' + year);
+            
+            if (yearFilters[issuerId].has(year)) {
+                yearFilters[issuerId].delete(year);
+                btn.style.background = '#3f3f46';
+                btn.style.color = '#a1a1aa';
+                btn.style.borderColor = '#52525b';
+                btn.style.opacity = '1';
+            } else {
+                yearFilters[issuerId].add(year);
+                btn.style.background = '#27272a';
+                btn.style.color = '#52525b';
+                btn.style.borderColor = '#3f3f46';
+                btn.style.opacity = '0.5';
+            }
+            
+            filterMonthsByYear(issuerId);
+        }
+
+        function filterMonthsByYear(issuerId) {
+            const container = document.getElementById('trans-issuer-' + issuerId);
+            if (!container) return;
+            
+            const hiddenYears = yearFilters[issuerId];
+            
+            container.querySelectorAll('[id^="trans-month-"]').forEach(el => {
+                const monthId = el.id.replace('trans-month-', '');
+                const monthKey = monthId.replace(issuerId + '-', '');
+                const year = monthKey.split('-')[0];
+                
+                if (hiddenYears && hiddenYears.has(year)) {
+                    el.style.display = 'none';
+                } else {
+                    el.style.display = 'block';
+                }
+            });
+        }
+
+        function renderCards() {
+            const container = document.getElementById('cardsContent');
+            
+            if (!allData || !allData.by_issuer) {
+                container.innerHTML = '<div class="no-data">No cards data available</div>';
+                return;
+            }
+            
+            let html = '';
+            
+            Object.keys(allData.by_issuer).forEach(issuer => {
+                const issuerData = allData.by_issuer[issuer];
+                const trans = issuerData.transactions;
+                const totalSpend = trans.filter(t => t.transaction_type === 'DR').reduce((sum, t) => sum + Math.abs(t.amount), 0);
+                const totalCashback = trans.reduce((sum, t) => sum + (t.calculated_cashback || 0), 0);
+                
+                html += `
+                    <div class="issuer-group">
+                        <div class="issuer-header">
+                            <div class="issuer-info">
+                                <h3>${issuer}</h3>
+                                <div class="issuer-meta">${trans.length} transactions</div>
+                            </div>
+                            <div class="issuer-stats">
+                                <div class="issuer-stat">
+                                    <div class="label">Spend</div>
+                                    <div class="value">${totalSpend.toLocaleString()}</div>
+                                </div>
+                                <div class="issuer-stat">
+                                    <div class="label">Cashback</div>
+                                    <div class="value" style="color: #22c55e;">${totalCashback.toFixed(2)}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html || '<div class="no-data">No cards data available</div>';
+        }
+
+        let categoryPieChart = null;
+        let cashbackLineChart = null;
+        let topCategoriesChart = null;
+
+        function renderDashboard() {
+            const filtered = getFilteredTransactions();
+            const container = document.getElementById('dashboardContent');
+            
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="no-data">No transactions in selected period</div>';
+                if (categoryPieChart) categoryPieChart.destroy();
+                if (cashbackLineChart) cashbackLineChart.destroy();
+                if (topCategoriesChart) topCategoriesChart.destroy();
+                return;
+            }
+
+            const byCategory = {};
+            filtered.forEach(trans => {
+                if (trans.transaction_type === 'CR') return;
+                const cat = trans.cashback_category || 'Other';
+                if (!byCategory[cat]) {
+                    byCategory[cat] = { count: 0, spend: 0, cashback: 0 };
+                }
+                byCategory[cat].count++;
+                byCategory[cat].spend += Math.abs(trans.amount);
+                byCategory[cat].cashback += trans.calculated_cashback || 0;
+            });
+
+            const monthlyData = {};
+            filtered.forEach(trans => {
+                if (trans.transaction_type === 'CR') return;
+                const parts = trans.date.split('/');
+                if (parts.length !== 3) return;
+                const monthKey = `${parts[2]}-${parts[1].padStart(2, '0')}`;
+                const monthDisplay = new Date(parts[2], parseInt(parts[1]) - 1).toLocaleString('en-US', { month: 'short', year: 'numeric' });
+                if (!monthlyData[monthKey]) {
+                    monthlyData[monthKey] = { display: monthDisplay, spend: 0, cashback: 0 };
+                }
+                monthlyData[monthKey].spend += Math.abs(trans.amount);
+                monthlyData[monthKey].cashback += trans.calculated_cashback || 0;
+            });
+
+            const sortedMonths = Object.keys(monthlyData).sort();
+            const monthLabels = sortedMonths.map(k => monthlyData[k].display);
+            const cashbackByMonth = sortedMonths.map(k => Math.round(monthlyData[k].cashback * 100) / 100);
+            const spendByMonth = sortedMonths.map(k => Math.round(monthlyData[k].spend * 100) / 100);
+
+            const categoryColors = {
+                'Dining': '#d4af37',
+                'Grocery': '#22c55e',
+                'Utilities': '#3b82f6',
+                'Shopping': '#ec4899',
+                'Travel': '#f97316',
+                'Entertainment': '#8b5cf6',
+                'Health': '#14b8a6',
+                'Other': '#71717a',
+                'N/A': '#52525b'
+            };
+
+            const sortedCategories = Object.keys(byCategory).sort((a, b) => byCategory[b].spend - byCategory[a].spend);
+            const categoryLabels = sortedCategories;
+            const categorySpends = sortedCategories.map(c => Math.round(byCategory[c].spend * 100) / 100);
+            const categoryColorsList = sortedCategories.map(c => categoryColors[c] || '#71717a');
+
+            if (categoryPieChart) categoryPieChart.destroy();
+            if (cashbackLineChart) cashbackLineChart.destroy();
+            if (topCategoriesChart) topCategoriesChart.destroy();
+
+            categoryPieChart = new Chart(document.getElementById('categoryPieChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: categoryLabels,
+                    datasets: [{
+                        data: categorySpends,
+                        backgroundColor: categoryColorsList,
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { color: '#a1a1aa', padding: 12, font: { size: 11 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => ` ${ctx.label}: ₹${ctx.raw.toLocaleString()}`
+                            }
+                        }
+                    }
+                }
+            });
+
+            cashbackLineChart = new Chart(document.getElementById('cashbackLineChart'), {
+                type: 'line',
+                data: {
+                    labels: monthLabels,
+                    datasets: [
+                        {
+                            label: 'Cashback',
+                            data: cashbackByMonth,
+                            borderColor: '#d4af37',
+                            backgroundColor: 'rgba(212, 175, 55, 0.1)',
+                            fill: true,
+                            tension: 0.3,
+                            pointBackgroundColor: '#d4af37',
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'Spend',
+                            data: spendByMonth,
+                            borderColor: '#71717a',
+                            backgroundColor: 'transparent',
+                            borderDash: [5, 5],
+                            tension: 0.3,
+                            pointRadius: 3,
+                            pointHoverRadius: 5
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { intersect: false, mode: 'index' },
+                    plugins: {
+                        legend: { position: 'top', labels: { color: '#a1a1aa', padding: 16, font: { size: 11 } } },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => ` ${ctx.dataset.label}: ₹${ctx.raw.toLocaleString()}`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { color: '#27272a' }, ticks: { color: '#71717a', font: { size: 10 } } },
+                        y: {
+                            grid: { color: '#27272a' },
+                            ticks: {
+                                color: '#71717a',
+                                font: { size: 10 },
+                                callback: (v) => '₹' + v.toLocaleString()
+                            }
+                        }
+                    }
+                }
+            });
+
+            topCategoriesChart = new Chart(document.getElementById('topCategoriesChart'), {
+                type: 'bar',
+                data: {
+                    labels: categoryLabels.slice(0, 8),
+                    datasets: [
+                        {
+                            label: 'Spend',
+                            data: categorySpends.slice(0, 8),
+                            backgroundColor: 'rgba(212, 175, 55, 0.7)',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Cashback',
+                            data: sortedCategories.slice(0, 8).map(c => Math.round(byCategory[c].cashback * 100) / 100),
+                            backgroundColor: 'rgba(34, 197, 94, 0.7)',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { position: 'top', labels: { color: '#a1a1aa', padding: 16, font: { size: 11 } } },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => ` ${ctx.dataset.label}: ₹${ctx.raw.toLocaleString()}`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: '#27272a' },
+                            ticks: { color: '#71717a', font: { size: 10 }, callback: (v) => '₹' + v.toLocaleString() }
+                        },
+                        y: { grid: { display: false }, ticks: { color: '#a1a1aa', font: { size: 11 } } }
+                    }
+                }
+            });
+            
+            let html = `
+                <table class="transactions-table">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Count</th>
+                            <th>Total Spend</th>
+                            <th>Cashback</th>
+                            <th>CB %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            sortedCategories.forEach(cat => {
+                const data = byCategory[cat];
+                const cbPercent = data.spend > 0 ? ((data.cashback / data.spend) * 100).toFixed(1) : '0';
+                html += `
+                    <tr>
+                        <td><span class="badge badge-category">${cat}</span></td>
+                        <td>${data.count}</td>
+                        <td class="amount">${data.spend.toLocaleString()}</td>
+                        <td class="cashback">${data.cashback.toFixed(2)}</td>
+                        <td>${cbPercent}%</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        async function clearAllData() {
+            const modal = document.getElementById('confirmModal');
+            const yesBtn = document.getElementById('confirmYes');
+            const noBtn = document.getElementById('confirmNo');
+            
+            modal.style.display = 'flex';
+            
+            return new Promise((resolve) => {
+                const cleanup = () => {
+                    modal.style.display = 'none';
+                    yesBtn.removeEventListener('click', onYes);
+                    noBtn.removeEventListener('click', onNo);
+                };
+                
+                const onYes = async () => {
+                    cleanup();
+                    try {
+                        await fetch('/api/clear', { method: 'POST' });
+                        
+                        allData = null;
+                        if (categoryPieChart) { categoryPieChart.destroy(); categoryPieChart = null; }
+                        if (cashbackLineChart) { cashbackLineChart.destroy(); cashbackLineChart = null; }
+                        if (topCategoriesChart) { topCategoriesChart.destroy(); topCategoriesChart = null; }
+                        
+                        document.getElementById('overviewStatsGrid').style.display = 'none';
+                        document.getElementById('overviewContent').innerHTML = '';
+                        document.getElementById('statsGrid').style.display = 'none';
+                        document.getElementById('controlsRow').style.display = 'none';
+                        document.getElementById('dashboardContent').innerHTML = '';
+                        document.getElementById('transactionsContent').innerHTML = '<div class="no-data">No transactions found</div>';
+                        document.getElementById('cardsContent').innerHTML = '<div class="no-data">No cards data available</div>';
+                        document.getElementById('dashboardContent').innerHTML = '';
+                    } catch (error) {
+                        alert('Error clearing data: ' + error.message);
+                    }
+                    resolve(true);
+                };
+                
+                const onNo = () => {
+                    cleanup();
+                    resolve(false);
+                };
+                
+                yesBtn.addEventListener('click', onYes);
+                noBtn.addEventListener('click', onNo);
+            });
+        }
+
+        window.addEventListener('load', () => {
+            loadAndDisplayData(false);
+        });
+    </script>
+</body>
+</html>
